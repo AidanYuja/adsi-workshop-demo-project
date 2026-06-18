@@ -1,0 +1,15 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+
+  jpa:
+    show-sql: false
+
+  flyway:
+    locations: classpath:db/migration
+
+logging:
+  level:
+    com.example.attendance: INFO
+    org.springframework.security: WARN

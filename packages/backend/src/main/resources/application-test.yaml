@@ -1,0 +1,22 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+
+  datasource:
+    url: jdbc:h2:mem:attendance;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.example.attendance: INFO
