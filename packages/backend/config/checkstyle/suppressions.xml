@@ -3,7 +3,10 @@
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-    <!-- テストコードは行数制限を緩和 -->
+    <!-- テストコードは行数制限・命名規則を緩和 -->
     <suppress checks="MethodLength" files=".*Test\.java"/>
     <suppress checks="FileLength" files=".*Test\.java"/>
+    <suppress checks="MethodName" files=".*Test\.java"/>
+    <!-- ArchUnit のルール定数は snake_case が慣例 -->
+    <suppress checks="ConstantName" files=".*Test\.java"/>
 </suppressions>
