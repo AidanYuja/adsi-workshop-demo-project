@@ -1,4 +1,4 @@
-# 10: コード品質改善 + README 整備
+# 10: コード品質改善 + README 整備 + lefthook 導入
 
 ## プロンプト
 
@@ -14,6 +14,9 @@
 > → コンパイラ `-Xlint:all` + Agent による全ファイル走査で網羅的に洗い出し
 
 > プロジェクト直下、frontend, backend 内、それぞれ README 整備して
+
+> 今後、ちゃんと作業が終わるタイミングで check を回すようにして
+> → hook でやるべきでは？ → git pre-commit hook → lefthook で管理する方向に決定
 
 ## やったこと
 
@@ -69,6 +72,24 @@
 | `packages/backend/README.md` | API エンドポイント一覧、アーキテクチャ、DB マイグレーション、品質チェック |
 | `packages/frontend/README.md` | ページ構成、ディレクトリ構成（フィーチャーベース）、認証フロー |
 
+### 7. lefthook 導入
+
+コミット前チェックを自動化するため lefthook を導入。
+
+| 検討した方式 | 結果 |
+| ---- | ---- |
+| Claude Code の PreToolUse hook | `git commit` 時にのみ発火するが、Claude 経由のコミットにしか効かない |
+| Claude Code の Stop hook | 毎ターン発火して重い |
+| `.git/hooks/pre-commit` 手書き | 動くがリポジトリ管理外 |
+| **lefthook** | YAML 設定がリポジトリに含まれ、チームで共有可能。採用 |
+
+`lefthook.yml` の設定:
+
+- `backend-check`: `packages/backend/` 配下の変更時に `./gradlew check -q` 実行
+- `frontend-build`: `packages/frontend/` 配下の変更時に `npx next build --no-lint` 実行
+
+ステージされたファイルが対象パッケージ外なら skip される。
+
 ## つまずき
 
 ### Checkstyle `replace_all` による中途半端な置換
@@ -89,4 +110,6 @@ c9a20e1 feat(backend): Phase B 実装 — 認証・勤怠・社員・部署の A
 25fb2e3 fix(backend): コンパイル警告・IDE 警告を全件解消 + .gitignore 整備
 59a311c fix(backend): 未使用フィールド・this-escape・serialVersionUID 警告を修正
 313b26a docs: プロジェクト・Backend・Frontend の README を整備
+a70d8d4 docs: コード品質改善 + README 整備の過程記録を追加
+0d1811a chore: lefthook による pre-commit hook を導入
 ```
