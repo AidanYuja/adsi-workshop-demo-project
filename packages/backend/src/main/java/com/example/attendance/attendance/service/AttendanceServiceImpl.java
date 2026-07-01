@@ -53,10 +53,6 @@ public class AttendanceServiceImpl implements AttendanceService {
     public AttendanceRecordResponse clockIn(UUID employeeId) {
         var employee = findEmployeeOrThrow(employeeId);
         var today = LocalDate.now(clock);
-        var existing = attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(employeeId, today);
-        if (existing.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already clocked in");
-        }
 
         var now = Instant.now(clock);
         var record = AttendanceRecord.builder()
