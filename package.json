@@ -16,6 +16,7 @@
     "db:down": "cd packages/backend && podman compose down",
     "deploy:dev": "cd packages/infra && npx cdk deploy --context env=dev",
     "deploy:prod": "cd packages/infra && npx cdk deploy --context env=prod",
-    "synth": "cd packages/infra && npx cdk synth --context env=dev"
+    "synth": "cd packages/infra && npx cdk synth --context env=dev",
+    "setup": "bash scripts/setup.sh"
   }
 }

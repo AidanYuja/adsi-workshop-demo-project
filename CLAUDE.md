@@ -8,6 +8,13 @@
 - `docs/path/` — デモの過程ドキュメント（番号付きファイル）
 - `docs/working/` — 要件定義・設計の作業用ドキュメント（Q&A 形式）
 
+## セットアップ
+
+- 依存関係の一括インストール: `npm run setup`（`scripts/setup.sh`）
+  - Backend: Gradle 依存解決
+  - Frontend: `npm install`
+  - Infra: `npm install`
+
 ## 全般
 
 - backend の Gradle コマンドは `packages/backend/` ディレクトリから実行する
