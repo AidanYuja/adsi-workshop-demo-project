@@ -1,0 +1,81 @@
+name: バグ報告 (Bug)
+description: 不具合の報告。再現手順と期待/実際の挙動を具体的に。
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        再現手順・期待/実際の挙動を具体的に記載してください。
+        修正は **テスト以外の実装で行う**（テスト変更は最終手段）という方針です（`.claude/rules/testing.md`）。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: どんな不具合か 1〜2 行で。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する挙動
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の挙動
+      description: エラーメッセージ・スクショ・ログがあれば添付。
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 発生箇所
+      description: 複数選択可。
+      multiple: true
+      options:
+        - Backend (Spring Boot)
+        - Frontend (Next.js)
+        - DB
+        - Infra (CDK)
+        - SageMaker プレビュー
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: 環境
+      placeholder: 例）ローカル dev / SageMaker Code Editor / 本番
+
+  - type: textarea
+    id: cause
+    attributes:
+      label: 原因・修正方針（任意）
+      description: 調査でわかった原因や修正アイデア。
+
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: 対応チェック
+      options:
+        - label: 再現を確認した
+        - label: 原因を特定した
+        - label: 回帰テストを追加した
+        - label: テスト以外の変更で修正した

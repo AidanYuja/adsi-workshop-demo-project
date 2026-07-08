@@ -1,0 +1,109 @@
+name: 機能追加 (Feature)
+description: 新機能・機能改善の要求。AI-DLC の「要求仕様」の起点。
+title: "[Feature] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        この Issue は機能追加の **起点かつ記録ハブ** です。
+        要求仕様・設計・実装計画は、確定するたびにこの Issue にコメントして永続化します
+        （運用: `.claude/rules/common/issue-workflow.md`）。
+
+        **★ 人間がレビューで特にチェックすべき項目**は「受け入れ基準」「要確認・意思決定」「スコープ」「レビューゲート」です。
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景・目的 (Why)
+      description: なぜこの機能が必要か。解決したい課題・ビジネス価値。
+      placeholder: 例）月次の勤怠集計を手作業でやっており工数がかかる。自動化したい。
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: ユーザーストーリー (What)
+      description: 「〜として、〜したい、なぜなら〜」の形式で記述する。
+      value: |
+        - ○○として、△△したい、なぜなら□□のため
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ★受け入れ基準 (Acceptance Criteria)
+      description: 「完了」の定義。テスト可能な条件で書く。ここが仕様の合意点であり、レビューで最重要。
+      value: |
+        - [ ] （満たすべき条件を検証可能な形で）
+        - [ ] 権限のないユーザーはアクセスできない
+    validations:
+      required: true
+
+  - type: textarea
+    id: decisions
+    attributes:
+      label: ★要確認・意思決定 (Decisions)
+      description: |
+        AI が仮定してはいけない論点を列挙する。
+        [Question] / [Answer] の壁打ちは編集しやすいローカルの `docs/working/requirements/` で行い、
+        確定した決定だけをここに要約する（未確定のものは「未決」と明記）。未決が残る限り実装に進まない。
+      placeholder: |
+        - [x] 集計の締め日 → 決定: 月末固定
+        - [ ] 退職者の扱い → 未決（docs/working/requirements/ で確認中）
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: ★スコープ / 対象外
+      description: 今回やること・やらないことの境界。スコープクリープ防止。
+      value: |
+        対象:
+        -
+        対象外:
+        -
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: 影響範囲
+      description: 変更が及ぶ領域（複数選択可）。
+      multiple: true
+      options:
+        - Backend (Spring Boot)
+        - Frontend (Next.js)
+        - DB (Flyway migration)
+        - Infra (CDK)
+        - 認証・認可
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: review-gates
+    attributes:
+      label: ★レビューゲート（人間の承認）
+      description: 各工程の成果物を Issue にコメントし、人間が承認したらチェックする。全ゲート通過で実装完了。
+      options:
+        - label: 要求仕様レビュー済み（[Answer] がすべて確定している）
+        - label: 設計レビュー済み（ドメイン / API / DB）
+        - label: 実装計画 (Plan) 承認済み
+        - label: テスト観点レビュー済み
+
+  - type: textarea
+    id: related-docs
+    attributes:
+      label: 関連ドキュメント / Issue
+      description: 確定した仕様・設計の保存先（docs/）や関連 Issue・PR。
+      placeholder: |
+        - 要求: docs/requirements/xxx.md
+        - 設計: docs/design/xxx.md
+        - Unit: docs/units/unit_xx.md
+        - 関連: #123
+    validations:
+      required: false

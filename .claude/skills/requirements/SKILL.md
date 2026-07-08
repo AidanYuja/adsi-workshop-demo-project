@@ -41,6 +41,9 @@ AI が仮定してはいけない仕様は明示的に質問する。
 
 未回答の `[Answer]` がある限り、その仕様に依存する設計・実装に進まない。
 
+`[Q]/[A]` の壁打ちは **ローカルの `docs/working/requirements/` で行う**（Issue は編集しづらいため）。
+GitHub Issue には**確定した決定だけ**を要約して残す（→ `.claude/rules/common/issue-workflow.md`）。
+
 ## 完了条件
 
 - [ ] 未回答の `[Answer]` が残っていない

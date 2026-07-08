@@ -13,6 +13,7 @@
 | SageMaker から AWS デプロイ | `.claude/skills/sagemaker-aws-deploy/SKILL.md` |
 | コーディング規約 | `.claude/rules/` |
 | 開発の全体像（AI-DLC） | `.claude/rules/common/development-process.md` |
+| Issue 運用（要求/設計の永続化） | `.claude/rules/common/issue-workflow.md` |
 | 要求仕様 | `.claude/skills/requirements/SKILL.md` |
 | 設計 | `.claude/skills/design/SKILL.md` |
 | 作業分割（UoW） | `.claude/skills/work-decomposition/SKILL.md` |

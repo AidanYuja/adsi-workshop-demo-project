@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 開発プロセスの進め方 (AI-DLC)
+    url: https://github.com/d-experts/adsi-workshop-demo-project/blob/main/.claude/rules/common/development-process.md
+    about: 要求 → 設計 →（分割）→ TDD の流れと AI-DLC の考え方
+  - name: Issue 運用ルール
+    url: https://github.com/d-experts/adsi-workshop-demo-project/blob/main/.claude/rules/common/issue-workflow.md
+    about: Issue に要求仕様・設計・実装計画をコメントして永続化する運用
