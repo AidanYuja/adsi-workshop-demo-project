@@ -1,4 +1,4 @@
-import { render, within } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import { createElement } from "react";
 import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 import { ClockButtons } from "./ClockButtons";
@@ -42,9 +42,7 @@ describe("ClockButtons", () => {
   });
 
   it("勤務中(CLOCKED_IN)のとき出勤ボタンが無効化される", () => {
-    setupMocks("CLOCKED_IN", [
-      { clockIn: "2026-07-13T09:00:00Z", clockOut: null },
-    ]);
+    setupMocks("CLOCKED_IN", [{ clockIn: "2026-07-13T09:00:00Z", clockOut: null }]);
 
     const { container } = render(<ClockButtons />);
     const view = within(container);
@@ -54,9 +52,7 @@ describe("ClockButtons", () => {
   });
 
   it("勤務中(CLOCKED_IN)のとき退勤ボタンが有効である", () => {
-    setupMocks("CLOCKED_IN", [
-      { clockIn: "2026-07-13T09:00:00Z", clockOut: null },
-    ]);
+    setupMocks("CLOCKED_IN", [{ clockIn: "2026-07-13T09:00:00Z", clockOut: null }]);
 
     const { container } = render(<ClockButtons />);
     const view = within(container);
@@ -75,5 +71,65 @@ describe("ClockButtons", () => {
 
     const clockInButton = view.getByRole("button", { name: /出勤/ });
     expect(clockInButton).toBeEnabled();
+  });
+
+  it("メモ入力欄が表示される", () => {
+    setupMocks("NOT_CLOCKED_IN");
+
+    const { container } = render(<ClockButtons />);
+    const view = within(container);
+
+    const textarea = view.getByLabelText("打刻メモ");
+    expect(textarea).toBeInTheDocument();
+  });
+
+  it("出勤ボタン押下時にメモが渡される", () => {
+    setupMocks("NOT_CLOCKED_IN");
+
+    const { container } = render(<ClockButtons />);
+    const view = within(container);
+
+    const textarea = view.getByLabelText("打刻メモ");
+    fireEvent.change(textarea, { target: { value: "電車遅延" } });
+
+    const clockInButton = view.getByRole("button", { name: /出勤/ });
+    fireEvent.click(clockInButton);
+
+    expect(mockClockInMutate).toHaveBeenCalledWith("電車遅延", expect.any(Object));
+  });
+
+  it("メモが空のとき出勤ボタン押下でundefinedが渡される", () => {
+    setupMocks("NOT_CLOCKED_IN");
+
+    const { container } = render(<ClockButtons />);
+    const view = within(container);
+
+    const clockInButton = view.getByRole("button", { name: /出勤/ });
+    fireEvent.click(clockInButton);
+
+    expect(mockClockInMutate).toHaveBeenCalledWith(undefined, expect.any(Object));
+  });
+
+  it("退勤ボタン押下時にメモが渡される", () => {
+    setupMocks("CLOCKED_IN", [{ clockIn: "2026-07-13T09:00:00Z", clockOut: null }]);
+
+    const { container } = render(<ClockButtons />);
+    const view = within(container);
+
+    const textarea = view.getByLabelText("打刻メモ");
+    fireEvent.change(textarea, { target: { value: "客先直行" } });
+
+    const clockOutButton = view.getByRole("button", { name: /退勤/ });
+    fireEvent.click(clockOutButton);
+
+    expect(mockClockOutMutate).toHaveBeenCalledWith("客先直行", expect.any(Object));
+  });
+
+  it("文字数カウンターが表示される", () => {
+    setupMocks("NOT_CLOCKED_IN");
+
+    const { container } = render(<ClockButtons />);
+
+    expect(container.textContent).toContain("0 / 1000");
   });
 });

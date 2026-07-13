@@ -18,6 +18,18 @@ function toMonthString(year: number, month: number): string {
   return `${year}-${String(month).padStart(2, "0")}`;
 }
 
+function formatMemos(memos: TeamMemberSummaryResponse["memos"]): string {
+  if (!memos || memos.length === 0) return "-";
+  return memos
+    .map((m) => {
+      const parts: string[] = [];
+      if (m.clockInMemo) parts.push(`[出勤] ${m.clockInMemo}`);
+      if (m.clockOutMemo) parts.push(`[退勤] ${m.clockOutMemo}`);
+      return `${m.date}: ${parts.join(" / ")}`;
+    })
+    .join("\n");
+}
+
 const columns: Column<TeamMemberSummaryResponse>[] = [
   {
     key: "employeeName",
@@ -42,6 +54,11 @@ const columns: Column<TeamMemberSummaryResponse>[] = [
     key: "absentDays",
     header: "欠勤日数",
     render: (m) => `${m.absentDays}日`,
+  },
+  {
+    key: "memos",
+    header: "備考",
+    render: (m) => <span className="text-xs whitespace-pre-wrap">{formatMemos(m.memos)}</span>,
   },
 ];
 

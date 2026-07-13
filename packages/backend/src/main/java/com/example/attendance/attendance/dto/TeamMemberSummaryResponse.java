@@ -1,5 +1,7 @@
 package com.example.attendance.attendance.dto;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record TeamMemberSummaryResponse(
@@ -8,6 +10,12 @@ public record TeamMemberSummaryResponse(
     int workDays,
     int totalWorkMinutes,
     int totalOvertimeMinutes,
-    int absentDays
+    int absentDays,
+    List<MemoEntry> memos
 ) {
+    public record MemoEntry(
+        LocalDate date,
+        String clockInMemo,
+        String clockOutMemo
+    ) {}
 }

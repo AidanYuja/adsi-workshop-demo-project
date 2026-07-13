@@ -50,7 +50,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public AttendanceRecordResponse clockIn(UUID employeeId) {
+    public AttendanceRecordResponse clockIn(UUID employeeId, String memo) {
         var employee = findEmployeeOrThrow(employeeId);
         var today = LocalDate.now(clock);
 
@@ -60,6 +60,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .employee(employee)
                 .workDate(today)
                 .clockIn(now)
+                .clockInMemo(memo)
                 .corrected(false)
                 .build();
 
@@ -70,14 +71,32 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public AttendanceRecordResponse clockOut(UUID employeeId) {
+    public AttendanceRecordResponse clockOut(UUID employeeId, String memo) {
         var today = LocalDate.now(clock);
         var record = attendanceRepository.findByEmployeeIdAndWorkDateAndClockOutIsNull(employeeId, today)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No active clock-in found"));
 
         record.setClockOut(Instant.now(clock));
+        record.setClockOutMemo(memo);
         var saved = attendanceRepository.save(record);
         log.info("Clock-out recorded for employee={} at={}", employeeId, saved.getClockOut());
+        return AttendanceRecordResponse.from(saved);
+    }
+
+    @Override
+    @Transactional
+    public AttendanceRecordResponse updateMemo(UUID recordId, UUID employeeId, String clockInMemo, String clockOutMemo) {
+        var record = attendanceRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance record not found"));
+
+        if (!record.getEmployee().getId().equals(employeeId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Memo update is forbidden for other employee's record");
+        }
+
+        record.setClockInMemo(clockInMemo);
+        record.setClockOutMemo(clockOutMemo);
+        var saved = attendanceRepository.save(record);
+        log.info("Memo updated for record={} by employee={}", recordId, employeeId);
         return AttendanceRecordResponse.from(saved);
     }
 
@@ -151,13 +170,19 @@ public class AttendanceServiceImpl implements AttendanceService {
                     var grouped = empRecords.stream()
                             .collect(Collectors.groupingBy(AttendanceRecord::getWorkDate));
                     var summary = buildMonthlySummary(grouped, yearMonth);
+                    var memos = empRecords.stream()
+                            .filter(r -> r.getClockInMemo() != null || r.getClockOutMemo() != null)
+                            .map(r -> new TeamMemberSummaryResponse.MemoEntry(
+                                    r.getWorkDate(), r.getClockInMemo(), r.getClockOutMemo()))
+                            .toList();
                     return new TeamMemberSummaryResponse(
                             emp.getId(),
                             emp.getName(),
                             summary.workDays(),
                             summary.totalWorkMinutes(),
                             summary.totalOvertimeMinutes(),
-                            summary.absentDays()
+                            summary.absentDays(),
+                            List.copyOf(memos)
                     );
                 })
                 .toList();
