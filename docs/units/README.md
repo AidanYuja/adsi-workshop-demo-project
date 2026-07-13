@@ -30,14 +30,18 @@ Phase B: 実装（Unit 01〜04 並列）
   部署管理  社員管理   認証 / 打刻
     │
     ▼
-Phase C: 実装（Unit 05 / 06 並列）
+Phase C: 実装（Unit 05 / 06 / 07 並列）
   - Flyway V4（corrections テーブル）
+  - Flyway V6（paid_leave テーブル）
     │
-    ├──────────┐
-    ▼          ▼
-  Unit 05    Unit 06
-  勤怠修正   月次集計
+    ├──────────┬──────────┐
+    ▼          ▼          ▼
+  Unit 05    Unit 06    Unit 07
+  勤怠修正   月次集計   有給休暇
 ```
+
+※ Unit 07（有給休暇）は Unit 05 / 06 と並列実装可能。
+  Unit 06（月次集計）は Unit 07 完了後に「有給日数」集計項目を追加する軽微な修正が必要。
 
 ### Phase A で定義するもの
 
@@ -72,13 +76,14 @@ Phase C: 実装（Unit 05 / 06 並列）
 | 04 | [打刻・勤怠](unit_04_attendance.md) | B | attendance_records | clock-in/out, history, team, all |
 | 05 | [勤怠修正](unit_05_correction.md) | C | attendance_corrections | corrections, pending, approve, reject |
 | 06 | [月次集計・帳票](unit_06_report.md) | C | — | monthly, csv, pdf |
+| 07 | [有給休暇](unit_07_paid-leave.md) | C | paid_leave_balances, paid_leave_requests | leaves, balance, approve, reject |
 
 ## 実装順序
 
 1. **Unit 00** → 全 Unit の前提（基盤整備 + 起動確認）
 2. **Phase A** → インターフェース定義（Flyway V1〜V3 + Entity + Service interface + DTO）
 3. **Phase B: Unit 01〜04** → **並列実装**（Service 実装・Controller・テスト・Frontend）
-4. **Phase C: Unit 05 / 06** → **並列実装**（Flyway V4 + 修正・集計の実装）
+4. **Phase C: Unit 05 / 06 / 07** → **並列実装**（Flyway V4, V6 + 修正・集計・有給の実装）
 
 ## Flyway マイグレーション順序
 
@@ -88,4 +93,6 @@ Phase C: 実装（Unit 05 / 06 並列）
 | V2 | `V2__create_employees.sql` | Phase A |
 | V3 | `V3__create_attendance_records.sql` | Phase A |
 | V4 | `V4__create_attendance_corrections.sql` | Phase C |
+| V5 | `V5__add_memo_to_attendance_records.sql` | Phase C（打刻メモ） |
+| V6 | `V6__create_paid_leave_tables.sql` | Phase C（有給休暇） |
 | V1000 | `V1000__seed_data.sql` | Phase B 完了後 |
