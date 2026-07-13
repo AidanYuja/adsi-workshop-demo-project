@@ -1,7 +1,7 @@
 "use client";
 
 import { LogIn, LogOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatTime } from "./format";
 import { useClockIn, useClockOut, useTodayStatus } from "./useAttendance";
@@ -51,7 +51,6 @@ export function ClockButtons() {
   const clockInMutation = useClockIn();
   const clockOutMutation = useClockOut();
   const [memo, setMemo] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   if (isLoading) {
     return (
@@ -100,7 +99,6 @@ export function ClockButtons() {
       </div>
       <div className="max-w-md mx-auto space-y-2">
         <textarea
-          ref={textareaRef}
           value={memo}
           onChange={(e) => setMemo(e.target.value.slice(0, MEMO_MAX_LENGTH))}
           placeholder="メモ（任意）"

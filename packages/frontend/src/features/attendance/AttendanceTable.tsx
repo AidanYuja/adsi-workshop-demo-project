@@ -72,6 +72,7 @@ export function AttendanceTable({ days }: AttendanceTableProps) {
             <TableCell>
               {day.records[0] && (
                 <MemoCell
+                  key={day.records[0].id}
                   recordId={day.records[0].id}
                   clockInMemo={day.records[0].clockInMemo}
                   clockOutMemo={day.records[0].clockOutMemo}

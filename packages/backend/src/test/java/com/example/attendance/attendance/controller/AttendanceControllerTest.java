@@ -168,6 +168,35 @@ class AttendanceControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/attendance/clock-in メモ1001文字で400を返す")
+    void clockIn_memoTooLong_returns400() throws Exception {
+        // Arrange
+        var longMemo = "あ".repeat(1001);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/attendance/clock-in")
+                        .param("employeeId", EMPLOYEE_ID.toString())
+                        .contentType("application/json")
+                        .content("{\"memo\":\"" + longMemo + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH /api/attendance/{recordId}/memo メモ1001文字で400を返す")
+    void updateMemo_memoTooLong_returns400() throws Exception {
+        // Arrange
+        var recordId = UUID.randomUUID();
+        var longMemo = "あ".repeat(1001);
+
+        // Act & Assert
+        mockMvc.perform(patch("/api/attendance/{recordId}/memo", recordId)
+                        .param("employeeId", EMPLOYEE_ID.toString())
+                        .contentType("application/json")
+                        .content("{\"clockInMemo\":\"" + longMemo + "\",\"clockOutMemo\":null}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("GET /api/attendance/today は200を返す")
     void getTodayStatus_validRequest_returns200() throws Exception {
         // Arrange

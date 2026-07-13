@@ -110,6 +110,21 @@ describe("ClockButtons", () => {
     expect(mockClockInMutate).toHaveBeenCalledWith(undefined, expect.any(Object));
   });
 
+  it("退勤ボタン押下時にメモが渡される", () => {
+    setupMocks("CLOCKED_IN", [{ clockIn: "2026-07-13T09:00:00Z", clockOut: null }]);
+
+    const { container } = render(<ClockButtons />);
+    const view = within(container);
+
+    const textarea = view.getByLabelText("打刻メモ");
+    fireEvent.change(textarea, { target: { value: "客先直行" } });
+
+    const clockOutButton = view.getByRole("button", { name: /退勤/ });
+    fireEvent.click(clockOutButton);
+
+    expect(mockClockOutMutate).toHaveBeenCalledWith("客先直行", expect.any(Object));
+  });
+
   it("文字数カウンターが表示される", () => {
     setupMocks("NOT_CLOCKED_IN");
 

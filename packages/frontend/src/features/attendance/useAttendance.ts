@@ -23,7 +23,7 @@ export function useTodayStatus() {
 
   return useQuery({
     queryKey: [...TODAY_STATUS_KEY, employeeId],
-    queryFn: () => fetchTodayStatus(employeeId!),
+    queryFn: () => fetchTodayStatus(employeeId ?? ""),
     enabled: !!employeeId,
     refetchInterval: 60 * 1000,
   });
@@ -75,7 +75,7 @@ export function useAttendanceHistory(month: string) {
 
   return useQuery({
     queryKey: [...HISTORY_KEY, employeeId, month],
-    queryFn: () => fetchHistory(employeeId!, month),
+    queryFn: () => fetchHistory(employeeId ?? "", month),
     enabled: !!employeeId && !!month,
   });
 }
@@ -85,7 +85,7 @@ export function useTeamAttendance(month: string) {
 
   return useQuery({
     queryKey: [...TEAM_KEY, user?.id, month],
-    queryFn: () => fetchTeamAttendance(user!.id, month),
+    queryFn: () => fetchTeamAttendance(user?.id ?? "", month),
     enabled: !!user?.isManager && !!month,
   });
 }
