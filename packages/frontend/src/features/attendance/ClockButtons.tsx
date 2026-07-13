@@ -1,7 +1,7 @@
 "use client";
 
 import { LogIn, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatTime } from "./format";
 import { useClockIn, useClockOut, useTodayStatus } from "./useAttendance";
@@ -44,10 +44,14 @@ const STATUS_LABELS = {
   CLOCKED_OUT: "退勤済み",
 } as const;
 
+const MEMO_MAX_LENGTH = 1000;
+
 export function ClockButtons() {
   const { data: todayStatus, isLoading } = useTodayStatus();
   const clockInMutation = useClockIn();
   const clockOutMutation = useClockOut();
+  const [memo, setMemo] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   if (isLoading) {
     return (
@@ -69,6 +73,20 @@ export function ClockButtons() {
 
   const lastRecord = todayStatus?.records[todayStatus.records.length - 1];
 
+  const handleClockIn = () => {
+    const memoValue = memo.trim() || undefined;
+    clockInMutation.mutate(memoValue, {
+      onSuccess: () => setMemo(""),
+    });
+  };
+
+  const handleClockOut = () => {
+    const memoValue = memo.trim() || undefined;
+    clockOutMutation.mutate(memoValue, {
+      onSuccess: () => setMemo(""),
+    });
+  };
+
   return (
     <div className="rounded-lg border p-6 space-y-4">
       <CurrentTime />
@@ -80,11 +98,25 @@ export function ClockButtons() {
           </span>
         )}
       </div>
+      <div className="max-w-md mx-auto space-y-2">
+        <textarea
+          ref={textareaRef}
+          value={memo}
+          onChange={(e) => setMemo(e.target.value.slice(0, MEMO_MAX_LENGTH))}
+          placeholder="メモ（任意）"
+          rows={2}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+          aria-label="打刻メモ"
+        />
+        <p className="text-xs text-muted-foreground text-right">
+          {memo.length} / {MEMO_MAX_LENGTH}
+        </p>
+      </div>
       <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
         <button
           type="button"
           disabled={!canClockIn || isPending}
-          onClick={() => clockInMutation.mutate()}
+          onClick={handleClockIn}
           className="flex flex-col items-center justify-center gap-2 rounded-xl bg-green-500 py-8 text-white transition-colors hover:bg-green-600 active:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400"
         >
           <LogIn className="h-8 w-8" />
@@ -93,7 +125,7 @@ export function ClockButtons() {
         <button
           type="button"
           disabled={!canClockOut || isPending}
-          onClick={() => clockOutMutation.mutate()}
+          onClick={handleClockOut}
           className="flex flex-col items-center justify-center gap-2 rounded-xl bg-orange-500 py-8 text-white transition-colors hover:bg-orange-600 active:bg-orange-700 disabled:bg-gray-200 disabled:text-gray-400"
         >
           <LogOut className="h-8 w-8" />

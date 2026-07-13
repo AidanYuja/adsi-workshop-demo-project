@@ -6,6 +6,13 @@ export interface AttendanceRecordResponse {
   clockIn: string;
   clockOut: string | null;
   corrected: boolean;
+  clockInMemo: string | null;
+  clockOutMemo: string | null;
+}
+
+export interface UpdateMemoRequest {
+  clockInMemo: string | null;
+  clockOutMemo: string | null;
 }
 
 export interface TodayStatusResponse {
@@ -35,6 +42,12 @@ export interface AttendanceHistoryResponse {
   summary: MonthlySummaryResponse;
 }
 
+export interface MemoEntry {
+  date: string;
+  clockInMemo: string | null;
+  clockOutMemo: string | null;
+}
+
 export interface TeamMemberSummaryResponse {
   employeeId: string;
   employeeName: string;
@@ -42,17 +55,31 @@ export interface TeamMemberSummaryResponse {
   totalWorkMinutes: number;
   totalOvertimeMinutes: number;
   absentDays: number;
+  memos: MemoEntry[];
 }
 
-export function clockIn(employeeId: string): Promise<AttendanceRecordResponse> {
+export function clockIn(employeeId: string, memo?: string): Promise<AttendanceRecordResponse> {
   return apiClient.post<AttendanceRecordResponse>(
     `/api/attendance/clock-in?employeeId=${employeeId}`,
+    memo ? { memo } : undefined,
   );
 }
 
-export function clockOut(employeeId: string): Promise<AttendanceRecordResponse> {
+export function clockOut(employeeId: string, memo?: string): Promise<AttendanceRecordResponse> {
   return apiClient.post<AttendanceRecordResponse>(
     `/api/attendance/clock-out?employeeId=${employeeId}`,
+    memo ? { memo } : undefined,
+  );
+}
+
+export function updateMemo(
+  recordId: string,
+  employeeId: string,
+  body: UpdateMemoRequest,
+): Promise<AttendanceRecordResponse> {
+  return apiClient.patch<AttendanceRecordResponse>(
+    `/api/attendance/${recordId}/memo?employeeId=${employeeId}`,
+    body,
   );
 }
 
