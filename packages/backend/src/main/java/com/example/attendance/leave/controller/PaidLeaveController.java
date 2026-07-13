@@ -1,5 +1,6 @@
 package com.example.attendance.leave.controller;
 
+import com.example.attendance.common.config.security.EmployeeUserDetails;
 import com.example.attendance.leave.dto.LeaveBalanceResponse;
 import com.example.attendance.leave.dto.LeaveRejectRequest;
 import com.example.attendance.leave.dto.LeaveRequestCreateRequest;
@@ -8,6 +9,7 @@ import com.example.attendance.leave.dto.PendingLeaveResponse;
 import com.example.attendance.leave.service.PaidLeaveService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,47 +36,50 @@ public class PaidLeaveController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LeaveRequestResponse create(
-            @RequestParam UUID requesterId,
+            @AuthenticationPrincipal EmployeeUserDetails user,
             @Valid @RequestBody LeaveRequestCreateRequest request) {
-        return paidLeaveService.create(requesterId, request);
+        return paidLeaveService.create(user.getEmployeeId(), request);
     }
 
     @GetMapping
-    public List<LeaveRequestResponse> findByRequester(@RequestParam UUID requesterId) {
-        return paidLeaveService.findByRequester(requesterId);
+    public List<LeaveRequestResponse> findByRequester(
+            @AuthenticationPrincipal EmployeeUserDetails user) {
+        return paidLeaveService.findByRequester(user.getEmployeeId());
     }
 
     @PatchMapping("/{id}/cancel")
     public LeaveRequestResponse cancel(
+            @AuthenticationPrincipal EmployeeUserDetails user,
             @PathVariable UUID id,
-            @RequestParam UUID requesterId,
             @RequestParam Long version) {
-        return paidLeaveService.cancel(id, requesterId, version);
+        return paidLeaveService.cancel(id, user.getEmployeeId(), version);
     }
 
     @GetMapping("/pending")
-    public List<PendingLeaveResponse> findPending(@RequestParam UUID managerId) {
-        return paidLeaveService.findPending(managerId);
+    public List<PendingLeaveResponse> findPending(
+            @AuthenticationPrincipal EmployeeUserDetails user) {
+        return paidLeaveService.findPending(user.getEmployeeId());
     }
 
     @PatchMapping("/{id}/approve")
     public LeaveRequestResponse approve(
+            @AuthenticationPrincipal EmployeeUserDetails user,
             @PathVariable UUID id,
-            @RequestParam UUID approverId,
             @RequestParam Long version) {
-        return paidLeaveService.approve(id, approverId, version);
+        return paidLeaveService.approve(id, user.getEmployeeId(), version);
     }
 
     @PatchMapping("/{id}/reject")
     public LeaveRequestResponse reject(
+            @AuthenticationPrincipal EmployeeUserDetails user,
             @PathVariable UUID id,
-            @RequestParam UUID approverId,
             @Valid @RequestBody LeaveRejectRequest request) {
-        return paidLeaveService.reject(id, approverId, request.reason(), request.version());
+        return paidLeaveService.reject(id, user.getEmployeeId(), request.reason(), request.version());
     }
 
     @GetMapping("/balance")
-    public LeaveBalanceResponse getBalance(@RequestParam UUID employeeId) {
-        return paidLeaveService.getBalance(employeeId);
+    public LeaveBalanceResponse getBalance(
+            @AuthenticationPrincipal EmployeeUserDetails user) {
+        return paidLeaveService.getBalance(user.getEmployeeId());
     }
 }

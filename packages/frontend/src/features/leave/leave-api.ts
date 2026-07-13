@@ -14,6 +14,7 @@ export interface LeaveRequestResponse {
   status: LeaveStatus;
   totalDays: number;
   approverName: string | null;
+  version: number;
   createdAt: string;
 }
 
@@ -46,52 +47,35 @@ export interface LeaveRequestCreateRequest {
 }
 
 export function createLeaveRequest(
-  requesterId: string,
   request: LeaveRequestCreateRequest,
 ): Promise<LeaveRequestResponse> {
-  return apiClient.post<LeaveRequestResponse>(`/api/leaves?requesterId=${requesterId}`, request);
+  return apiClient.post<LeaveRequestResponse>("/api/leaves", request);
 }
 
-export function fetchLeaveRequests(requesterId: string): Promise<LeaveRequestResponse[]> {
-  return apiClient.get<LeaveRequestResponse[]>(`/api/leaves?requesterId=${requesterId}`);
+export function fetchLeaveRequests(): Promise<LeaveRequestResponse[]> {
+  return apiClient.get<LeaveRequestResponse[]>("/api/leaves");
 }
 
-export function cancelLeaveRequest(
-  id: string,
-  requesterId: string,
-  version: number,
-): Promise<LeaveRequestResponse> {
-  return apiClient.patch<LeaveRequestResponse>(
-    `/api/leaves/${id}/cancel?requesterId=${requesterId}&version=${version}`,
-  );
+export function cancelLeaveRequest(id: string, version: number): Promise<LeaveRequestResponse> {
+  return apiClient.patch<LeaveRequestResponse>(`/api/leaves/${id}/cancel?version=${version}`);
 }
 
-export function fetchPendingLeaves(managerId: string): Promise<PendingLeaveResponse[]> {
-  return apiClient.get<PendingLeaveResponse[]>(`/api/leaves/pending?managerId=${managerId}`);
+export function fetchPendingLeaves(): Promise<PendingLeaveResponse[]> {
+  return apiClient.get<PendingLeaveResponse[]>("/api/leaves/pending");
 }
 
-export function approveLeaveRequest(
-  id: string,
-  approverId: string,
-  version: number,
-): Promise<LeaveRequestResponse> {
-  return apiClient.patch<LeaveRequestResponse>(
-    `/api/leaves/${id}/approve?approverId=${approverId}&version=${version}`,
-  );
+export function approveLeaveRequest(id: string, version: number): Promise<LeaveRequestResponse> {
+  return apiClient.patch<LeaveRequestResponse>(`/api/leaves/${id}/approve?version=${version}`);
 }
 
 export function rejectLeaveRequest(
   id: string,
-  approverId: string,
   reason: string,
   version: number,
 ): Promise<LeaveRequestResponse> {
-  return apiClient.patch<LeaveRequestResponse>(
-    `/api/leaves/${id}/reject?approverId=${approverId}`,
-    { reason, version },
-  );
+  return apiClient.patch<LeaveRequestResponse>(`/api/leaves/${id}/reject`, { reason, version });
 }
 
-export function fetchLeaveBalance(employeeId: string): Promise<LeaveBalanceResponse> {
-  return apiClient.get<LeaveBalanceResponse>(`/api/leaves/balance?employeeId=${employeeId}`);
+export function fetchLeaveBalance(): Promise<LeaveBalanceResponse> {
+  return apiClient.get<LeaveBalanceResponse>("/api/leaves/balance");
 }

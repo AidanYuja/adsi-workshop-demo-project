@@ -19,5 +19,6 @@ public record LeaveRequestResponse(
     LeaveStatus status,
     BigDecimal totalDays,
     String approverName,
+    Long version,
     Instant createdAt
 ) {}

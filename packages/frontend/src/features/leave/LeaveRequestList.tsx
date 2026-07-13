@@ -74,7 +74,7 @@ export function LeaveRequestList() {
               <td className="px-4 py-3 text-sm">
                 {req.status === "PENDING" && (
                   <button
-                    onClick={() => cancelMutation.mutate({ id: req.id, version: 0 })}
+                    onClick={() => cancelMutation.mutate({ id: req.id, version: req.version })}
                     disabled={cancelMutation.isPending}
                     className="text-red-600 hover:text-red-800 text-sm font-medium"
                   >

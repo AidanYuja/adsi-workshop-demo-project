@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { type FormEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useApproveLeaveRequest, usePendingLeaves, useRejectLeaveRequest } from "./useLeaves";
 import type { LeaveType, PendingLeaveResponse } from "./leave-api";
 
@@ -26,10 +34,11 @@ export function PendingLeaveList() {
     return <div className="text-center text-gray-500 py-8">承認待ちの有給申請はありません</div>;
   }
 
-  const handleReject = () => {
-    if (!rejectTarget) return;
+  const handleReject = (e: FormEvent) => {
+    e.preventDefault();
+    if (!rejectTarget || !rejectReason.trim()) return;
     rejectMutation.mutate(
-      { id: rejectTarget.id, reason: rejectReason, version: rejectTarget.version },
+      { id: rejectTarget.id, reason: rejectReason.trim(), version: rejectTarget.version },
       {
         onSuccess: () => {
           setRejectTarget(null);
@@ -59,31 +68,28 @@ export function PendingLeaveList() {
                 <div className="text-sm text-gray-600 mt-1">{req.reason}</div>
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    approveMutation.mutate({
-                      id: req.id,
-                      version: req.version,
-                    })
-                  }
-                  disabled={approveMutation.isPending}
-                  className="rounded-md bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+                <Button
+                  size="sm"
+                  onClick={() => approveMutation.mutate({ id: req.id, version: req.version })}
+                  disabled={approveMutation.isPending || rejectMutation.isPending}
                 >
-                  承認
-                </button>
-                <button
+                  {approveMutation.isPending ? "承認中..." : "承認"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
                   onClick={() => setRejectTarget(req)}
-                  className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
+                  disabled={approveMutation.isPending || rejectMutation.isPending}
                 >
                   却下
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <ConfirmDialog
+      <Dialog
         open={!!rejectTarget}
         onOpenChange={(open) => {
           if (!open) {
@@ -91,15 +97,45 @@ export function PendingLeaveList() {
             setRejectReason("");
           }
         }}
-        title="有給申請を却下"
-        description={
-          rejectTarget ? `${rejectTarget.requesterName}さんの有給申請を却下しますか？` : ""
-        }
-        onConfirm={handleReject}
-        confirmLabel="却下する"
-        variant="destructive"
-        isLoading={rejectMutation.isPending}
-      />
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>有給申請を却下</DialogTitle>
+            <DialogDescription>
+              {rejectTarget ? `${rejectTarget.requesterName}さんの有給申請を却下します。` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleReject}>
+            <div className="space-y-2 py-2">
+              <label htmlFor="rejectReason" className="text-sm font-medium">
+                却下理由
+              </label>
+              <textarea
+                id="rejectReason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                required
+                maxLength={500}
+                rows={3}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                placeholder="却下理由を入力してください"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setRejectTarget(null)}>
+                キャンセル
+              </Button>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={!rejectReason.trim() || rejectMutation.isPending}
+              >
+                {rejectMutation.isPending ? "処理中..." : "却下する"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

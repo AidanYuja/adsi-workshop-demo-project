@@ -91,6 +91,7 @@ public class PaidLeaveServiceImpl implements PaidLeaveService {
     @Override
     public LeaveRequestResponse cancel(UUID leaveRequestId, UUID requesterId, Long version) {
         var leaveRequest = findRequest(leaveRequestId);
+        validateVersion(leaveRequest.getVersion(), version);
 
         if (leaveRequest.getStatus() != LeaveStatus.PENDING) {
             throw new IllegalStateException("申請中の有給のみ取り下げ可能です");
@@ -119,15 +120,19 @@ public class PaidLeaveServiceImpl implements PaidLeaveService {
     @Override
     public LeaveRequestResponse approve(UUID leaveRequestId, UUID approverId, Long version) {
         var leaveRequest = findRequest(leaveRequestId);
+        validateVersion(leaveRequest.getVersion(), version);
         var approver = findEmployee(approverId);
 
         validateApprover(approver, leaveRequest);
 
-        leaveRequest.setStatus(LeaveStatus.APPROVED);
-        leaveRequest.setApprover(approver);
-
         int fiscalYear = leaveRequest.getStartDate().getYear();
         var balance = findOrCreateBalance(leaveRequest.getRequester(), fiscalYear);
+        if (balance.getRemainingDays().compareTo(leaveRequest.getTotalDays()) < 0) {
+            throw new IllegalStateException("有給残日数が不足しています");
+        }
+
+        leaveRequest.setStatus(LeaveStatus.APPROVED);
+        leaveRequest.setApprover(approver);
         balance.setUsedDays(balance.getUsedDays().add(leaveRequest.getTotalDays()));
         balanceRepository.save(balance);
 
@@ -138,6 +143,7 @@ public class PaidLeaveServiceImpl implements PaidLeaveService {
     @Override
     public LeaveRequestResponse reject(UUID leaveRequestId, UUID approverId, String reason, Long version) {
         var leaveRequest = findRequest(leaveRequestId);
+        validateVersion(leaveRequest.getVersion(), version);
         var approver = findEmployee(approverId);
 
         validateApprover(approver, leaveRequest);
@@ -198,6 +204,13 @@ public class PaidLeaveServiceImpl implements PaidLeaveService {
             });
     }
 
+    private void validateVersion(Long entityVersion, Long expectedVersion) {
+        if (!entityVersion.equals(expectedVersion)) {
+            throw new org.springframework.orm.ObjectOptimisticLockingFailureException(
+                PaidLeaveRequest.class.getSimpleName(), expectedVersion);
+        }
+    }
+
     private Employee findEmployee(UUID id) {
         return employeeRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("社員が見つかりません: " + id));
@@ -220,6 +233,7 @@ public class PaidLeaveServiceImpl implements PaidLeaveService {
             request.getStatus(),
             request.getTotalDays(),
             request.getApprover() != null ? request.getApprover().getName() : null,
+            request.getVersion(),
             request.getCreatedAt()
         );
     }

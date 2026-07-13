@@ -23,7 +23,7 @@ export function useLeaveRequests() {
 
   return useQuery({
     queryKey: [...LEAVES_KEY, user?.id],
-    queryFn: () => fetchLeaveRequests(user!.id),
+    queryFn: () => fetchLeaveRequests(),
     enabled: !!user?.id,
   });
 }
@@ -33,17 +33,16 @@ export function useLeaveBalance() {
 
   return useQuery({
     queryKey: [...BALANCE_KEY, user?.id],
-    queryFn: () => fetchLeaveBalance(user!.id),
+    queryFn: () => fetchLeaveBalance(),
     enabled: !!user?.id,
   });
 }
 
 export function useCreateLeaveRequest() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: LeaveRequestCreateRequest) => createLeaveRequest(user!.id, request),
+    mutationFn: (request: LeaveRequestCreateRequest) => createLeaveRequest(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LEAVES_KEY });
       queryClient.invalidateQueries({ queryKey: BALANCE_KEY });
@@ -56,12 +55,11 @@ export function useCreateLeaveRequest() {
 }
 
 export function useCancelLeaveRequest() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, version }: { id: string; version: number }) =>
-      cancelLeaveRequest(id, user!.id, version),
+      cancelLeaveRequest(id, version),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LEAVES_KEY });
       queryClient.invalidateQueries({ queryKey: BALANCE_KEY });
@@ -78,18 +76,17 @@ export function usePendingLeaves() {
 
   return useQuery({
     queryKey: [...PENDING_KEY, user?.id],
-    queryFn: () => fetchPendingLeaves(user!.id),
+    queryFn: () => fetchPendingLeaves(),
     enabled: !!user?.isManager,
   });
 }
 
 export function useApproveLeaveRequest() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, version }: { id: string; version: number }) =>
-      approveLeaveRequest(id, user!.id, version),
+      approveLeaveRequest(id, version),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PENDING_KEY });
       queryClient.invalidateQueries({ queryKey: LEAVES_KEY });
@@ -103,12 +100,11 @@ export function useApproveLeaveRequest() {
 }
 
 export function useRejectLeaveRequest() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, reason, version }: { id: string; reason: string; version: number }) =>
-      rejectLeaveRequest(id, user!.id, reason, version),
+      rejectLeaveRequest(id, reason, version),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PENDING_KEY });
       queryClient.invalidateQueries({ queryKey: LEAVES_KEY });
