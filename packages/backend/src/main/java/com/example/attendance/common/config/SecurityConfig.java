@@ -99,6 +99,14 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/corrections").authenticated()
             .requestMatchers(HttpMethod.GET, "/api/corrections").authenticated()
 
+            .requestMatchers(HttpMethod.POST, "/api/leaves").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/leaves").authenticated()
+            .requestMatchers(HttpMethod.GET, "/api/leaves/balance").authenticated()
+            .requestMatchers("/api/leaves/*/cancel").authenticated()
+            .requestMatchers("/api/leaves/pending/**").authenticated()
+            .requestMatchers("/api/leaves/*/approve").authenticated()
+            .requestMatchers("/api/leaves/*/reject").authenticated()
+
             .requestMatchers("/api/attendance/team/**").authenticated()
             .requestMatchers("/api/corrections/pending/**").authenticated()
             .requestMatchers("/api/corrections/*/approve").authenticated()
